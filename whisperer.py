@@ -28,11 +28,11 @@ class Whisperer(Agent):
                     number = request['number']
                     response = ""
 
-                    if self.selected_number > number:
+                    if self.selected_number < int(number):
                         response = "high"
-                    if self.selected_number < number:
+                    if self.selected_number > int(number):
                         response = "low"
-                    if self.selected_number == number:
+                    if self.selected_number == int(number):
                         response = "ok"
 
                     player_help = {'request_type': 'help_response', 'status': response}

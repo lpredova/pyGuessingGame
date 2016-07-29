@@ -44,7 +44,7 @@ class GameCoordinator(Agent):
                         inform_whisperer = {'request_type': 'round_result', 'result': 'late'}
                         self.send_message(inform_whisperer, request['origin'])
 
-                    if request['number'] == self.selected_number:
+                    if int(request['number']) == self.selected_number:
                         self.won = True
                         inform_whisperer = {'request_type': 'round_result', 'result': 'win'}
                         self.send_message(inform_whisperer, request['origin'])

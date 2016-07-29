@@ -1,6 +1,7 @@
 # coding=utf-8
 # !/usr/bin/env python
 import json
+import time
 from random import randint
 
 import spade
@@ -16,32 +17,39 @@ class PlayerAAgent(Agent):
         initial_guess = randint(0, 1000)
         low_state = 0
         high_state = 1000
+        last_sent = 0
 
         def _process(self):
             self.msg = self._receive(True)
 
             if self.msg:
+                time.sleep(1)
+
                 request = json.loads(self.msg.content)
                 if request['request_type'] == 'play':
                     initial_guess = randint(self.low_state, self.high_state)
+                    self.last_sent = initial_guess
                     ask_help = {'request_type': 'help_request', 'number': initial_guess, 'origin': 'gamer2@127.0.0.1'}
                     self.send_message(ask_help, 'whisperer@127.0.0.1')
 
                 if request['request_type'] == 'help_response':
                     if request['status'] == "high":
                         self.high_state = self.initial_guess
-                        new_guess = randint(self.low_state, self.high_state)
+                        new_guess = randint(self.low_state, self.last_sent)
+                        self.last_sent = new_guess
+
                         travel = {'request_type': 'guess', 'origin': 'gamer2@127.0.0.1', 'number': new_guess}
                         self.send_message(travel, 'coordinator@127.0.0.1')
 
                     if request['status'] == "low":
-                        self.low_state = self.initial_guess
-                        new_guess = randint(self.low_state, self.high_state)
+                        new_guess = randint(self.last_sent, self.high_state)
+                        self.last_sent = new_guess
+
                         travel = {'request_type': 'guess', 'origin': 'gamer2@127.0.0.1', 'number': new_guess}
                         self.send_message(travel, 'coordinator@127.0.0.1')
 
                     if request['status'] == "ok":
-                        travel = {'request_type': 'guess', 'origin': 'gamer2@127.0.0.1', 'number': self.initial_guess}
+                        travel = {'request_type': 'guess', 'origin': 'gamer2@127.0.0.1', 'number': self.last_sent}
                         self.send_message(travel, 'coordinator@127.0.0.1')
 
                 if request['request_type'] == 'round_result':
@@ -52,8 +60,10 @@ class PlayerAAgent(Agent):
                         print ":(((((((((((((((("
 
                     if request['result'] == "no":
-                        initial_guess = randint(self.low_state, self.high_state)
-                        ask_help = {'request_type': 'help_request', 'number': initial_guess,
+                        newest_guess = randint(self.low_state, self.high_state)
+                        self.last_sent = newest_guess
+
+                        ask_help = {'request_type': 'help_request', 'number': newest_guess,
                                     'origin': 'gamer2@127.0.0.1'}
                         self.send_message(ask_help, 'whisperer@127.0.0.1')
 

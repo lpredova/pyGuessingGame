@@ -59,7 +59,7 @@ class GameCoordinator(Agent):
             self.msg.setOntology("game")
             self.msg.setLanguage("eng")
             self.msg.addReceiver(agent)
-            self.msg.setContent(content)
+            self.msg.setContent(json.dumps(content))
             self.myAgent.send(self.msg)
             print '\nMessage %s sent to %s' % (content, address)
 

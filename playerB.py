@@ -1,6 +1,7 @@
 # coding=utf-8
 # !/usr/bin/env python
 import json
+from random import randint
 
 import spade
 from spade.ACLMessage import ACLMessage
@@ -12,17 +13,49 @@ class PlayerAgent(Agent):
     class Play(Behaviour):
 
         msg = None
+        initial_guess = randint(0, 1000)
+        low_state = 0
+        high_state = 1000
 
         def _process(self):
             self.msg = self._receive(True)
 
             if self.msg:
                 request = json.loads(self.msg.content)
-                if request['request_type'] == 'offer_response':
-                    print 'prvi'
+                if request['request_type'] == 'play':
+                    initial_guess = randint(self.low_state, self.high_state)
+                    ask_help = {'request_type': 'help_request', 'number': initial_guess, 'origin': 'playerB@127.0.0.1'}
+                    self.send_message(json.dumps(ask_help), 'coordinator@127.0.0.1')
 
-                if request['request_type'] == 'discount_response':
-                    print 'drugi'
+                if request['request_type'] == 'help_response':
+                    if request['status'] == "high":
+                        self.high_state = self.initial_guess
+                        new_guess = randint(self.low_state, self.high_state)
+                        travel = {'request_type': 'guess', 'origin': 'playerB@127.0.0.1', 'number': new_guess}
+                        self.send_message(json.dumps(travel), 'coordinator@127.0.0.1')
+
+                    if request['status'] == "low":
+                        self.low_state = self.initial_guess
+                        new_guess = randint(self.low_state, self.high_state)
+                        travel = {'request_type': 'guess', 'origin': 'playerB@127.0.0.1', 'number': new_guess}
+                        self.send_message(json.dumps(travel), 'coordinator@127.0.0.1')
+
+                    if request['status'] == "ok":
+                        travel = {'request_type': 'guess', 'origin': 'playerB@127.0.0.1', 'number': self.initial_guess}
+                        self.send_message(json.dumps(travel), 'coordinator@127.0.0.1')
+
+                if request['request_type'] == 'round_result':
+                    if request['result'] == "win":
+                        print "YAAAAY! I won!"
+
+                    if request['result'] == "late":
+                        print ":(((((((((((((((("
+
+                    if request['result'] == "no":
+                        initial_guess = randint(self.low_state, self.high_state)
+                        ask_help = {'request_type': 'help_request', 'number': initial_guess,
+                                    'origin': 'playerB@127.0.0.1'}
+                        self.send_message(json.dumps(ask_help), 'coordinator@127.0.0.1')
 
         def say_ready(self):
             travel = {'request_type': 'player_ready', 'origin': 'playerB@127.0.0.1'}
@@ -30,7 +63,7 @@ class PlayerAgent(Agent):
 
         def send_message(self, content, address):
 
-            agent = spade.AID.aid(name=address, addresses=["xmpp://%s"])
+            agent = spade.AID.aid(name=address, addresses=["xmpp://%s" % address])
             self.msg = ACLMessage()
             self.msg.setPerformative("inform")
             self.msg.setOntology("game")

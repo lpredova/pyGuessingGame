@@ -25,7 +25,7 @@ class PlayerAAgent(Agent):
                 if request['request_type'] == 'play':
                     initial_guess = randint(self.low_state, self.high_state)
                     ask_help = {'request_type': 'help_request', 'number': initial_guess, 'origin': 'gamer3@127.0.0.1'}
-                    self.send_message(ask_help, 'coordinator@127.0.0.1')
+                    self.send_message(ask_help, 'whisperer@127.0.0.1')
 
                 if request['request_type'] == 'help_response':
                     if request['status'] == "high":
@@ -55,7 +55,7 @@ class PlayerAAgent(Agent):
                         initial_guess = randint(self.low_state, self.high_state)
                         ask_help = {'request_type': 'help_request', 'number': initial_guess,
                                     'origin': 'gamer3@127.0.0.1'}
-                        self.send_message(ask_help, 'coordinator@127.0.0.1')
+                        self.send_message(ask_help, 'whisperer@127.0.0.1')
 
         def say_ready(self):
             travel = {'request_type': 'player_ready', 'origin': 'gamer3@127.0.0.1'}

@@ -30,6 +30,7 @@ class GameCoordinator(Agent):
 
                     if self.ready == 2:
                         self.selected_number = randint(0, 1000)
+                        print "Number is %d \n" % self.selected_number
                         inform_whisperer = {'request_type': 'new_number', 'number': self.selected_number}
                         self.send_message(inform_whisperer, 'whisperer@127.0.0.1')
 
@@ -61,7 +62,7 @@ class GameCoordinator(Agent):
             self.msg.addReceiver(agent)
             self.msg.setContent(json.dumps(content))
             self.myAgent.send(self.msg)
-            print '\nMessage %s sent to %s' % (content, address)
+            # print '\nMessage %s sent to %s' % (content, address)
 
     def _setup(self):
         print "\n Agent\t" + self.getAID().getName() + " is up"

@@ -1,7 +1,6 @@
 # coding=utf-8
 # !/usr/bin/env python
 import json
-import time
 from random import randint
 
 import spade
@@ -14,17 +13,15 @@ class PlayerAAgent(Agent):
     class Play(Behaviour):
 
         msg = None
-        initial_guess = randint(0, 1000)
+        initial_guess = randint(0, 100)
         low_state = 0
-        high_state = 1000
+        high_state = 100
         last_sent = 0
 
         def _process(self):
             self.msg = self._receive(True)
 
             if self.msg:
-                time.sleep(1)
-
                 request = json.loads(self.msg.content)
                 if request['request_type'] == 'play':
                     initial_guess = randint(self.low_state, self.high_state)

@@ -29,7 +29,7 @@ class GameCoordinator(Agent):
                     self.requests.append(request['origin'])
 
                     if self.ready == 2:
-                        self.selected_number = randint(0, 1000)
+                        self.selected_number = randint(0, 100)
                         print "Number is %d \n" % self.selected_number
                         inform_whisperer = {'request_type': 'new_number', 'number': self.selected_number}
                         self.send_message(inform_whisperer, 'whisperer@127.0.0.1')

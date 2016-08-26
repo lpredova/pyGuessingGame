@@ -50,11 +50,14 @@ class PlayerAAgent(Agent):
                         self.send_message(travel, 'coordinator@127.0.0.1')
 
                 if request['request_type'] == 'round_result':
-                    if request['result'] == "win":
-                        print "YAAAAY! I won!"
 
                     if request['result'] == "late":
                         print ":(((((((((((((((("
+                        return
+
+                    if request['result'] == "win":
+                        print "YAAAAY! I won!"
+                        return
 
                     if request['result'] == "no":
                         newest_guess = randint(self.low_state, self.high_state)

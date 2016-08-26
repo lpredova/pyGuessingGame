@@ -4,11 +4,20 @@ import json
 
 import spade
 from spade.ACLMessage import ACLMessage
-from spade.Agent import Agent
+from spade.Agent import BDIAgent
 from spade.Behaviour import ACLTemplate, MessageTemplate, Behaviour
+from spade.DF import Service
+from spade.bdi import Goal, expr
 
 
-class Whisperer(Agent):
+class Whisperer(BDIAgent):
+    class Evaluate(Service):
+        inputs = {}
+        outputs = {}
+
+        def run(self):
+            self.MyAgent.addBelieve(expr("Vrijednost(gamer2)"))
+
     class Whisper(Behaviour):
 
         msg = None
@@ -28,12 +37,19 @@ class Whisperer(Agent):
                     number = request['number']
                     response = ""
 
-                    if self.selected_number < int(number):
-                        response = "high"
-                    if self.selected_number > int(number):
-                        response = "low"
-                    if self.selected_number == int(number):
-                        response = "ok"
+                    if self.myAgent.askBelieve(expr('Vrijednost(gamer2)')):
+
+                        if request['origin'] == "gamer2@127.0.0.1":
+
+                            if self.selected_number < int(number):
+                                response = "high"
+                            if self.selected_number > int(number):
+                                response = "low"
+                            if self.selected_number == int(number):
+                                response = "ok"
+
+                        else:
+                            response = "ok"
 
                     player_help = {'request_type': 'help_response', 'status': response}
                     self.send_message(player_help, request['origin'])
@@ -58,6 +74,15 @@ class Whisperer(Agent):
         feedback_template.setOntology('game')
 
         message_template = MessageTemplate(feedback_template)
+
+        self.addBelieve(expr('Vrijednost(gamer2)'))
+
+        s1 = self.Evaluate(P=expr("Vrijednost( 0 )"), Q=expr("Vrijednost( 1 )"))
+        # self.addPlan(self.bdiBehav, None, P=expr('Sadrzim( 1, 0 )'), Q=expr('Sadrzim( 2, 0 )'))
+
+        g = Goal(expr('Pobjeda(gamer2)'))
+        self.addGoal(g)
+
         settings = self.Whisper()
         self.addBehaviour(settings, message_template)
 
